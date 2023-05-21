@@ -39,31 +39,93 @@ class WorldGenerator:
         initial_x = 0
         final_x = 29
 
-        second_platform_qnt = self.get_second_platform_qnt(initial_x, final_x)
-        print(second_platform_qnt)
+        holes = self.get_holes_qnt(initial_x, final_x)
+        second_platform = self.get_second_platform_qnt(initial_x, final_x)
+        third_plataforms = self.get_third_platform_qnt(initial_x, final_x, second_platform)
         
-        for i in range(initial_x, final_x):
-            self.create_object(4, i * 64 + max_pos, 8 * 64)
+        for i in range(0,len(holes)-1):
+            if holes[i] == initial_x or holes[i] == final_x:
+                self.create_object(4, holes[i] * 64 + max_pos, 8 * 64)
+            elif holes[i]-1!=holes[i-1]:
+                self.create_object(3, holes[i] * 64 + max_pos, 8 * 64)
+            elif holes[i]+1!=holes[i+1]:
+                self.create_object(5, holes[i] * 64 + max_pos, 8 * 64)
+            else:
+                self.create_object(4, holes[i] * 64 + max_pos, 8 * 64)
+        
+        if second_platform!=[]:
+            for i in second_platform:
+                
+                for j in range(0,len(i)):
+                    if j==0:
+                        self.create_object(0, i[j] * 64 + max_pos, 5 * 64)
+                    elif j==len(i)-1:
+                        self.create_object(2, i[j] * 64 + max_pos, 5 * 64)
+                    else:
+                        self.create_object(1, i[j] * 64 + max_pos, 5 * 64)
+
+        if third_plataforms!=[]:
+            for i in third_plataforms:
+                for j in range(0,len(i)):
+                    if j==0:
+                        self.create_object(0, i[j] * 64 + max_pos, 2 * 64)
+                    elif j==len(i)-1:
+                        self.create_object(2, i[j] * 64 + max_pos, 2 * 64)
+                    else:
+                        self.create_object(1, i[j] * 64 + max_pos, 2 * 64)
+                    
+
 
     def get_second_platform_qnt(self, initial_x, final_x, safe_spot=2):
-        qnt = random.choices([0, 1, 2, 3], weights=[4, 3, 2, 1], k=1)[0]
+        qnt = random.choices([0, 1, 2, 3], weights=[3, 3, 2, 1], k=1)[0]
         if qnt == 0:
             return []
-        platforms = []
+        plataforms = []
+        initial_x += safe_spot
+        final_x -= safe_spot
+        section = (final_x - initial_x) / qnt
+
+        for i in range(qnt):
+            size = random.choices([3, 4, 5, 6], weights=[2, 4, 4, 2], k=1)[0]
+            start = random.randint(int(i * section + 1), int(section * (i + 1)) - (size - 1))
+            platform = [start + j + safe_spot for j in range(size)]
+            plataforms.append(platform)
+        
+        return plataforms
+
+    def get_third_platform_qnt(self, initial_x, final_x, m_plataforms, safe_spot=2):
+        if len(m_plataforms) == 0:
+            return[]
+
+        plataforms = []
+        initial_x += safe_spot
+
+        for i in m_plataforms:
+            qnt = random.choices([0, 1], weights=[5, 6], k=1)[0]
+            if qnt:
+                size = random.choices([2, 3, 4, 5], weights=[2, 4, 4, 2], k=1)[0]
+                start = random.randint(i[1], len(i)+i[1]-2)
+                if start+size<=final_x+1:
+                    platform = [start + j + safe_spot for j in range(size)]
+                    plataforms.append(platform)
+        return plataforms
+
+    def get_holes_qnt(self, initial_x, final_x, safe_spot=2):
+        plataforms = []
+        for i in range(initial_x,final_x):
+            plataforms.append(i)
+        qnt = random.choices([0, 1, 2], weights=[2, 2, 1], k=1)[0]
+        if qnt == 0:
+            return plataforms
+
         initial_x += safe_spot
         final_x -= safe_spot
         section = (final_x - initial_x) / qnt
         
         for i in range(qnt):
-            size = random.choices([3, 4, 5, 6], weights=[2, 4, 4, 2], k=1)[0]
-            start = random.randint(int(i * section + 1), int(section * (i + 1)) - (size - 1))
-            platform = [start + j + safe_spot for j in range(size)]
-            platforms.append(platform)
-        
-        return platforms
-
-    def get_third_platform_qnt(self):
-        return random.choices([0, 1, 2], weights=[4, 2, 1], k=1)
-
-    def get_holes_qnt(self):
-        return random.choices([0, 1, 2], weights=[3, 2, 1], k=1)
+            size = random.choices([2, 3, 4], weights=[4, 3, 1], k=1)[0]
+            start = random.randint(int(i * section + 1), int(section * (i + 1)) - size - 2)
+            for j in range(0,size):
+                plataforms.remove(start+j+safe_spot)
+            
+        return plataforms
