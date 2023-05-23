@@ -12,9 +12,11 @@ class WorldGenerator:
         for i in range(20):
             self.create_object(4, i * 64, 8 * 64)
 
-    def create_object(self, type_id, pos_x, pos_y):
+    def create_object(self, type_id, pos_x, pos_y, t="ground", size=64):
         self.world_objects.append({
             "type_id": type_id,
+            "type": "ground",
+            "size": size,
             "pos_x": pos_x,
             "pos_y": pos_y
         })

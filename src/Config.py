@@ -5,7 +5,7 @@ window_height = 576
 
 pygame.init()
 
-screen = pygame.display.set_mode((window_width, window_height))
+screen = pygame.display.set_mode((window_width, window_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
 temp_surface = pygame.Surface((window_width, window_height))
 pygame.display.set_caption("IA")
 
