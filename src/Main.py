@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 
 world = WorldGenerator()
 
-warrior = Warrior(100, 200)
+warrior = Warrior(64, 200)
 
 def show_grid():
     for x in range(0, window_width, tile_height):
@@ -58,19 +58,20 @@ while True:
                 elif warrior.velocity < 0:
                     # Jumping up, adjust position only if necessary
                     if warrior.rect.bottom <= obj["pos_y"]:
-                        warrior.rect.bottom = obj["pos_y"] - 1
+                        warrior.rect.bottom = obj["pos_y"]-2
                         warrior.velocity = 0
             
 
-    # show_grid()
+    
     temp_surface.blit(warrior.image, (warrior.rect.x, warrior.rect.y))
     warrior.update(delta_time)
     temp_surface.blit(fps_text, text_position)
     pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
     pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
-
+    
 
     screen.blit(temp_surface, (0, 0))
+    #show_grid()
     pygame.display.flip()
 
     last_frame_time = pygame.time.get_ticks()

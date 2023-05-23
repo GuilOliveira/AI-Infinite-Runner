@@ -131,3 +131,6 @@ class WorldGenerator:
                 plataforms.remove(start+j+safe_spot)
             
         return plataforms
+    
+    def set_obstacles(self, y, x ):
+         pass
