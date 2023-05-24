@@ -42,41 +42,31 @@ class WorldGenerator:
         final_x = 29
 
         holes = self.get_holes_qnt(initial_x, final_x)
-        second_platform = self.get_second_platform_qnt(initial_x, final_x)
-        third_plataforms = self.get_third_platform_qnt(initial_x, final_x, second_platform)
+        second_platforms = self.get_second_platform_qnt(initial_x, final_x)
+        third_plataforms = self.get_third_platform_qnt(initial_x, final_x, second_platforms)
         
-        for i in range(0,len(holes)-1):
-            if holes[i] == initial_x or holes[i] == final_x:
-                self.create_object(4, holes[i] * 64 + max_pos, 8 * 64)
-            elif holes[i]-1!=holes[i-1]:
-                self.create_object(3, holes[i] * 64 + max_pos, 8 * 64)
-            elif holes[i]+1!=holes[i+1]:
-                self.create_object(5, holes[i] * 64 + max_pos, 8 * 64)
-            else:
-                self.create_object(4, holes[i] * 64 + max_pos, 8 * 64)
+
+        self.create_plataforms(holes, max_pos, 8, 3, 4, 5, True)
         
-        if second_platform!=[]:
-            for i in second_platform:
-                
-                for j in range(0,len(i)):
-                    if j==0:
-                        self.create_object(0, i[j] * 64 + max_pos, 5 * 64)
-                    elif j==len(i)-1:
-                        self.create_object(2, i[j] * 64 + max_pos, 5 * 64)
-                    else:
-                        self.create_object(1, i[j] * 64 + max_pos, 5 * 64)
+        if second_platforms!=[]:
+            self.create_plataforms(second_platforms, max_pos, 5, 0, 1, 2)
 
         if third_plataforms!=[]:
-            for i in third_plataforms:
-                for j in range(0,len(i)):
-                    if j==0:
-                        self.create_object(0, i[j] * 64 + max_pos, 2 * 64)
-                    elif j==len(i)-1:
-                        self.create_object(2, i[j] * 64 + max_pos, 2 * 64)
-                    else:
-                        self.create_object(1, i[j] * 64 + max_pos, 2 * 64)
-                    
+            self.create_plataforms(third_plataforms, max_pos, 2, 0, 1, 2)
 
+    def create_plataforms(self, arr, max_pos, y, spr_init, spr_med, spr_end, infinite=False):
+        for i in arr:
+                for j in range(0,len(i)):
+                    if infinite and i[j]==0:
+                        self.create_object(spr_med, i[j] * 64 + max_pos, y * 64)
+                    elif infinite and i[j]==28:
+                        self.create_object(spr_med, i[j] * 64 + max_pos, y * 64)
+                    elif j==0:
+                        self.create_object(spr_init, i[j] * 64 + max_pos, y * 64)
+                    elif j==len(i)-1:
+                        self.create_object(spr_end, i[j] * 64 + max_pos, y * 64)
+                    else:
+                        self.create_object(spr_med, i[j] * 64 + max_pos, y * 64)
 
     def get_second_platform_qnt(self, initial_x, final_x, safe_spot=2):
         qnt = random.choices([0, 1, 2, 3], weights=[3, 3, 2, 1], k=1)[0]
@@ -92,7 +82,6 @@ class WorldGenerator:
             start = random.randint(int(i * section + 1), int(section * (i + 1)) - (size - 1))
             platform = [start + j + safe_spot for j in range(size)]
             plataforms.append(platform)
-        
         return plataforms
 
     def get_third_platform_qnt(self, initial_x, final_x, m_plataforms, safe_spot=2):
@@ -112,25 +101,27 @@ class WorldGenerator:
                     plataforms.append(platform)
         return plataforms
 
-    def get_holes_qnt(self, initial_x, final_x, safe_spot=2):
-        plataforms = []
+    def get_holes_qnt(self, initial_x, final_x):
+        all_plataforms = []
         for i in range(initial_x,final_x):
-            plataforms.append(i)
+            all_plataforms.append(i)
         qnt = random.choices([0, 1, 2], weights=[2, 2, 1], k=1)[0]
         if qnt == 0:
-            return plataforms
-
-        initial_x += safe_spot
-        final_x -= safe_spot
+            return [all_plataforms]
         section = (final_x - initial_x) / qnt
+        actual = 0
+        plataforms = []
         
         for i in range(qnt):
             size = random.choices([2, 3, 4], weights=[4, 3, 1], k=1)[0]
             start = random.randint(int(i * section + 1), int(section * (i + 1)) - size - 2)
-            for j in range(0,size):
-                plataforms.remove(start+j+safe_spot)
-            
+
+            plataform = all_plataforms[actual:start]
+            actual += start+size
+            plataforms.append(plataform)
+        plataforms.append(all_plataforms[start+size:final_x])
         return plataforms
     
     def set_obstacles(self, y, x ):
-         pass
+         
+        pass
