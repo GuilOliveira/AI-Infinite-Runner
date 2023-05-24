@@ -40,6 +40,7 @@ class WorldGenerator:
     def create_blocks(self, max_pos):
         initial_x = 0
         final_x = 29
+        obstacles = []
 
         holes = self.get_holes_qnt(initial_x, final_x)
         second_platforms = self.get_second_platform_qnt(initial_x, final_x)
@@ -47,7 +48,7 @@ class WorldGenerator:
         
 
         self.create_plataforms(holes, max_pos, 8, 3, 4, 5, True)
-        obstacles = self.set_obstacles(8, holes, 1, True)
+        obstacles = self.set_obstacles(8, holes, 1, True, obstacles=obstacles)
         
         if second_platforms!=[]:
             self.create_plataforms(second_platforms, max_pos, 5, 0, 1, 2)
@@ -116,7 +117,7 @@ class WorldGenerator:
         all_plataforms = []
         for i in range(initial_x,final_x):
             all_plataforms.append(i)
-        qnt = random.choices([0, 1, 2], weights=[2, 2, 1], k=1)[0]
+        qnt = random.choices([0, 1, 2], weights=[2, 3, 2], k=1)[0]
         if qnt == 0:
             return [all_plataforms]
         section = (final_x - initial_x) / qnt
@@ -124,7 +125,7 @@ class WorldGenerator:
         plataforms = []
         
         for i in range(qnt):
-            size = random.choices([2, 3, 4], weights=[4, 3, 1], k=1)[0]
+            size = random.choices([2, 3, 4], weights=[3, 4, 1], k=1)[0]
             start = random.randint(int(i * section + 1), int(section * (i + 1)) - size - 2)
 
             plataform = all_plataforms[actual:start]
@@ -134,7 +135,7 @@ class WorldGenerator:
         return plataforms
     
     def set_obstacles(self, y, arr, gen, is_ground=False, obstacles=[] ):     
-        qnt = random.choices([0, 1, 2, 3, 4], weights=[3, 4, 3, 2, 1], k=1)[0]
+        qnt = random.choices([1, 2, 3, 4], weights=[3, 4, 3, 2], k=1)[0]
         if qnt==0:
             return obstacles
         qnt = math.ceil(qnt/gen)
@@ -146,12 +147,13 @@ class WorldGenerator:
             random_arr = random.choice(arr)
             if len(random_arr)==0:
                 return obstacles
-            
             random_pos = random.choice(random_arr)
-            print(random_pos, obstacles)
             if is_ground and (random_pos==random_arr[len(random_arr)-1] or random_pos==random_arr[0]):
                 i-=1
-            elif not self.check_x(random_pos, obstacles):
+                
+            if self.check_x(random_pos, obstacles):
+                i-=1
+            else:
                 obstacles.append([random_pos, y])
             random_arr.remove(random_pos)
         return obstacles
@@ -160,7 +162,7 @@ class WorldGenerator:
         if arr==[]:
             return False
         for i in arr:
-            if i[1] == x or i[1] == x+1:
+            if i[0] == x or i[0] <= x+1:
                 return True
         return False
         

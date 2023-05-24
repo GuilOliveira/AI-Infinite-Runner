@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 
 world = WorldGenerator()
 
-warrior = Warrior(64, 200)
+
 
 def show_grid():
     for x in range(0, window_width, tile_height):
@@ -23,6 +23,10 @@ def show_grid():
 # GAME LOOP
 last_frame_time = pygame.time.get_ticks()
 
+warrior_list = []
+for w in range(50):
+    warrior_list.append(Warrior(64, 200))
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -31,7 +35,8 @@ while True:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
-        warrior.jump()
+        for w in warrior_list:
+            w.jump()
     
     fps = clock.get_fps()
     fps_text = font.render(f"FPS: {round(fps)}", True, text_color, bg_color)
@@ -40,34 +45,40 @@ while True:
 
     temp_surface.fill(bg_color)
     world.update_objects(delta_time)
-    warrior.on_ground = False
+    for w in warrior_list:
+        w.on_ground = False
 
     for obj in world.world_objects:
         if window_width > obj["pos_x"]:
             temp_surface.blit(tiles.all[obj["type_id"]], (obj["pos_x"], obj["pos_y"]))
             
-            if warrior.right_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)):
-                # Handle collision with walls or obstacles here
-                pass
-            
-            if warrior.bottom_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)):
-                # Adjust the warrior's position and velocity based on the collision
-                if warrior.velocity > 0:
-                    # Falling down
-                    warrior.set_on_ground(obj["pos_y"])
-                elif warrior.velocity < 0:
-                    # Jumping up, adjust position only if necessary
-                    if warrior.rect.bottom <= obj["pos_y"]:
-                        warrior.rect.bottom = obj["pos_y"]-2
-                        warrior.velocity = 0
+            for warrior in warrior_list:
+                if warrior.right_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)):
+                    if obj["type"]=="obstacle":
+                        warrior_list.remove(warrior)
+                    
+                
+                if warrior.bottom_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)):
+                    # Adjust the warrior's position and velocity based on the collision
+                    if warrior.velocity > 0:
+                        # Falling down
+                        warrior.set_on_ground(obj["pos_y"])
+                    elif warrior.velocity < 0:
+                        # Jumping up, adjust position only if necessary
+                        if warrior.rect.bottom <= obj["pos_y"]:
+                            warrior.rect.bottom = obj["pos_y"]-2
+                            warrior.velocity = 0
             
 
     
-    temp_surface.blit(warrior.image, (warrior.rect.x, warrior.rect.y))
-    warrior.update(delta_time)
+    
+    for warrior in warrior_list:
+        warrior.update(delta_time)
+        temp_surface.blit(warrior.image, (warrior.rect.x, warrior.rect.y))
+        pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
+        pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
     temp_surface.blit(fps_text, text_position)
-    pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
-    pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
+    
     
 
     screen.blit(temp_surface, (0, 0))

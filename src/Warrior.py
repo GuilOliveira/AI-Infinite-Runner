@@ -59,3 +59,5 @@ class Warrior(pygame.sprite.Sprite):
     
     def bottom_collide(self, sprite):
         return self.bottom_rect.colliderect(sprite)
+    
+
