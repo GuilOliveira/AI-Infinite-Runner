@@ -13,7 +13,9 @@ class Tiles:
             (0, 1),
             (1, 1),
             (2, 1),
+            (0, 4),
             (3, 0)
+            
         ]
         tiles = []
         for position in tile_positions:

@@ -15,7 +15,7 @@ class WorldGenerator:
     def create_object(self, type_id, pos_x, pos_y, t="ground", size=64):
         self.world_objects.append({
             "type_id": type_id,
-            "type": "ground",
+            "type": t,
             "size": size,
             "pos_x": pos_x,
             "pos_y": pos_y
@@ -47,12 +47,23 @@ class WorldGenerator:
         
 
         self.create_plataforms(holes, max_pos, 8, 3, 4, 5, True)
+        obstacles = self.set_obstacles(8, holes, 1, True)
         
         if second_platforms!=[]:
             self.create_plataforms(second_platforms, max_pos, 5, 0, 1, 2)
+            obstacles = self.set_obstacles(5, second_platforms, 2, obstacles=obstacles)
 
         if third_plataforms!=[]:
             self.create_plataforms(third_plataforms, max_pos, 2, 0, 1, 2)
+            obstacles = self.set_obstacles(2, third_plataforms, 3, obstacles=obstacles)
+
+        self.create_obstacles(obstacles, max_pos, 6)
+
+        
+
+    def create_obstacles(self, obstacles, max_pos, spr):
+        for obstacle in obstacles:
+            self.create_object(spr, obstacle[0]*64+max_pos, obstacle[1]*64, "obstacle")
 
     def create_plataforms(self, arr, max_pos, y, spr_init, spr_med, spr_end, infinite=False):
         for i in arr:
@@ -122,6 +133,35 @@ class WorldGenerator:
         plataforms.append(all_plataforms[start+size:final_x])
         return plataforms
     
-    def set_obstacles(self, y, x ):
-         
-        pass
+    def set_obstacles(self, y, arr, gen, is_ground=False, obstacles=[] ):     
+        qnt = random.choices([0, 1, 2, 3, 4], weights=[3, 4, 3, 2, 1], k=1)[0]
+        if qnt==0:
+            return obstacles
+        qnt = math.ceil(qnt/gen)
+        y-=1
+
+        for i in range(qnt):
+            if len(arr)==0:
+                return obstacles
+            random_arr = random.choice(arr)
+            if len(random_arr)==0:
+                return obstacles
+            
+            random_pos = random.choice(random_arr)
+            print(random_pos, obstacles)
+            if is_ground and (random_pos==random_arr[len(random_arr)-1] or random_pos==random_arr[0]):
+                i-=1
+            elif not self.check_x(random_pos, obstacles):
+                obstacles.append([random_pos, y])
+            random_arr.remove(random_pos)
+        return obstacles
+    
+    def check_x(self, x, arr):
+        if arr==[]:
+            return False
+        for i in arr:
+            if i[1] == x or i[1] == x+1:
+                return True
+        return False
+        
+            
