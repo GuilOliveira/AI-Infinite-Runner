@@ -22,10 +22,11 @@ def show_grid():
 last_frame_time = pygame.time.get_ticks()
 
 warrior_list = []
-for w in range(1):
+for w in range(70):
     warrior_list.append(Warrior(64, 200))
-
+start_time = pygame.time.get_ticks()
 while True:
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -75,7 +76,13 @@ while True:
         temp_surface.blit(warrior.image , (warrior.rect.x, warrior.rect.y))
         #pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
         #pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
-    temp_surface.blit(fps_text, text_position)
+    
+    
+    elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
+    time_text = font.render(f"Time: {round(elapsed_time)}s", True, text_color, bg_color)
+    temp_surface.blit(time_text, text_position)
+
+    world.increment_speed(elapsed_time)
     
 
     screen.blit(temp_surface, (0, 0))

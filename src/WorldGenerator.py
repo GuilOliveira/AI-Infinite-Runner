@@ -7,6 +7,7 @@ class WorldGenerator:
         self.world_objects = []
         self.speed = 400
         self.create_base_block()
+        self.last_time_speed = 0
         
     def create_base_block(self):
         for i in range(20):
@@ -165,5 +166,12 @@ class WorldGenerator:
             if i[0] <= x+2 and i[0] >= x-1:
                 return False
         return True
+    
+    def increment_speed(self, elapsed_time):
+        if int(elapsed_time)%10==0:
+            if self.last_time_speed!= int(elapsed_time):
+                self.last_time_speed = int(elapsed_time)
+                print("dasdas")
+                self.speed+=60
         
             
