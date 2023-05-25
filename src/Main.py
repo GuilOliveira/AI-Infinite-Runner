@@ -12,8 +12,6 @@ clock = pygame.time.Clock()
 
 world = WorldGenerator()
 
-
-
 def show_grid():
     for x in range(0, window_width, tile_height):
         pygame.draw.line(screen, grid_color, (x, 0), (x, window_height))
@@ -24,7 +22,7 @@ def show_grid():
 last_frame_time = pygame.time.get_ticks()
 
 warrior_list = []
-for w in range(50):
+for w in range(1):
     warrior_list.append(Warrior(64, 200))
 
 while True:
@@ -58,7 +56,7 @@ while True:
                         warrior_list.remove(warrior)
                     
                 
-                if warrior.bottom_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)):
+                if warrior.bottom_collide(pygame.Rect(obj["pos_x"], obj["pos_y"], 64, 64)) and obj["type"]=="ground":
                     # Adjust the warrior's position and velocity based on the collision
                     if warrior.velocity > 0:
                         # Falling down
@@ -74,11 +72,10 @@ while True:
     
     for warrior in warrior_list:
         warrior.update(delta_time)
-        temp_surface.blit(warrior.image, (warrior.rect.x, warrior.rect.y))
-        pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
-        pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
+        temp_surface.blit(warrior.image , (warrior.rect.x, warrior.rect.y))
+        #pygame.draw.rect(temp_surface, (0,255,0), warrior.bottom_rect)
+        #pygame.draw.rect(temp_surface, (0,0,255), warrior.right_rect)
     temp_surface.blit(fps_text, text_position)
-    
     
 
     screen.blit(temp_surface, (0, 0))

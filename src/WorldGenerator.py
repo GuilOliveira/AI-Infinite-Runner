@@ -135,7 +135,7 @@ class WorldGenerator:
         return plataforms
     
     def set_obstacles(self, y, arr, gen, is_ground=False, obstacles=[] ):     
-        qnt = random.choices([1, 2, 3, 4], weights=[3, 4, 3, 2], k=1)[0]
+        qnt = random.choices([1, 2, 3], weights=[3, 4, 3], k=1)[0]
         if qnt==0:
             return obstacles
         qnt = math.ceil(qnt/gen)
@@ -151,7 +151,7 @@ class WorldGenerator:
             if is_ground and (random_pos==random_arr[len(random_arr)-1] or random_pos==random_arr[0]):
                 i-=1
                 
-            if self.check_x(random_pos, obstacles):
+            if not self.check_x(random_pos, obstacles):
                 i-=1
             else:
                 obstacles.append([random_pos, y])
@@ -160,10 +160,10 @@ class WorldGenerator:
     
     def check_x(self, x, arr):
         if arr==[]:
-            return False
+            return True
         for i in arr:
-            if i[0] == x or i[0] <= x+1:
-                return True
-        return False
+            if i[0] <= x+2 and i[0] >= x-1:
+                return False
+        return True
         
             
