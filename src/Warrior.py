@@ -37,13 +37,13 @@ class Warrior(pygame.sprite.Sprite):
         self.on_ground = False
     
     def load_frames(self):
-        run_frames = pygame.image.load("./data/_Run.png").convert_alpha()
+        run_frames = pygame.image.load("../data/_Run.png").convert_alpha()
         self.run_frames = self.set_frames(10, run_frames)
 
-        fall_frames = pygame.image.load("./data/_Fall.png").convert_alpha()
+        fall_frames = pygame.image.load("../data/_Fall.png").convert_alpha()
         self.fall_frames = self.set_frames(3, fall_frames)
 
-        jump_frames = pygame.image.load("./data/_Jump.png").convert_alpha()
+        jump_frames = pygame.image.load("../data/_Jump.png").convert_alpha()
         self.jump_frames = self.set_frames(3, jump_frames)
 
     def set_frames(self, n, frames, base_width=40):
@@ -97,7 +97,7 @@ class Warrior(pygame.sprite.Sprite):
         self.right_rect.y += y
 
     def gravity_effect(self):
-        if self.on_ground and self.velocity >= 0:
+        if (self.on_ground and self.velocity >= 0):
             self.velocity = 0
         else:
             self.velocity += self.gravity
@@ -105,14 +105,15 @@ class Warrior(pygame.sprite.Sprite):
     def set_on_ground(self, y):
         if self.on_ground:
             return 
+        self.velocity = 0
         self.on_ground = True
         self.rect.y = y - self.height
         self.bottom_rect.y = y - 10
         self.right_rect.y = y - self.height + 12
 
-    def jump(self):
+    def jump(self, pop):
         if self.on_ground:
-            self.velocity += self.jump_power
+            self.velocity += self.jump_power-pop*2.4
             self.on_ground = False
 
     def right_collide(self, sprite):

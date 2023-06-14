@@ -5,7 +5,7 @@ class WorldGenerator:
     def __init__(self):
         self.can_build_blocks = True
         self.world_objects = []
-        self.speed = 400
+        self.speed = 520
         self.create_base_block()
         self.last_time_speed = 0
         
@@ -35,7 +35,7 @@ class WorldGenerator:
                 obj["pos_x"] -= next_pos
                 if obj["pos_x"] > max_pos:
                     max_pos = obj["pos_x"]
-        if max_pos < 31 * 64:
+        if max_pos < 29 * 64:
             self.create_blocks(max_pos)
 
     def create_blocks(self, max_pos):
@@ -43,21 +43,21 @@ class WorldGenerator:
         final_x = 29
         obstacles = []
 
-        holes = self.get_holes_qnt(initial_x, final_x)
-        second_platforms = self.get_second_platform_qnt(initial_x, final_x)
-        third_plataforms = self.get_third_platform_qnt(initial_x, final_x, second_platforms)
+        ground = self.get_ground(initial_x, final_x)
+        #second_platforms = self.get_second_platform_qnt(initial_x, final_x)
+        #third_plataforms = self.get_third_platform_qnt(initial_x, final_x, second_platforms)
         
 
-        self.create_plataforms(holes, max_pos, 8, 3, 4, 5, True)
-        obstacles = self.set_obstacles(8, holes, 1, True, obstacles=obstacles)
+        self.create_plataforms(ground, max_pos, 8, 3, 4, 5, True)
+        obstacles = self.set_obstacles(8, ground, 1, initial_x, final_x, True, obstacles=obstacles)
         
-        if second_platforms!=[]:
+        """if second_platforms!=[]:
             self.create_plataforms(second_platforms, max_pos, 5, 0, 1, 2)
             obstacles = self.set_obstacles(5, second_platforms, 2, obstacles=obstacles)
 
         if third_plataforms!=[]:
             self.create_plataforms(third_plataforms, max_pos, 2, 0, 1, 2)
-            obstacles = self.set_obstacles(2, third_plataforms, 3, obstacles=obstacles)
+            obstacles = self.set_obstacles(2, third_plataforms, 3, obstacles=obstacles)"""
 
         self.create_obstacles(obstacles, max_pos, 6)
 
@@ -70,9 +70,7 @@ class WorldGenerator:
     def create_plataforms(self, arr, max_pos, y, spr_init, spr_med, spr_end, infinite=False):
         for i in arr:
                 for j in range(0,len(i)):
-                    if infinite and i[j]==0:
-                        self.create_object(spr_med, i[j] * 64 + max_pos, y * 64)
-                    elif infinite and i[j]==28:
+                    if infinite:
                         self.create_object(spr_med, i[j] * 64 + max_pos, y * 64)
                     elif j==0:
                         self.create_object(spr_init, i[j] * 64 + max_pos, y * 64)
@@ -114,29 +112,15 @@ class WorldGenerator:
                     plataforms.append(platform)
         return plataforms
 
-    def get_holes_qnt(self, initial_x, final_x):
+    def get_ground(self, initial_x, final_x):
         all_plataforms = []
         for i in range(initial_x,final_x):
-            all_plataforms.append(i)
-        qnt = random.choices([0, 1, 2], weights=[2, 3, 2], k=1)[0]
-        if qnt == 0:
-            return [all_plataforms]
-        section = (final_x - initial_x) / qnt
-        actual = 0
-        plataforms = []
+            all_plataforms.append(i)       
+        return [all_plataforms]
         
-        for i in range(qnt):
-            size = random.choices([2, 3, 4], weights=[3, 4, 1], k=1)[0]
-            start = random.randint(int(i * section + 1), int(section * (i + 1)) - size - 2)
-
-            plataform = all_plataforms[actual:start]
-            actual += start+size
-            plataforms.append(plataform)
-        plataforms.append(all_plataforms[start+size:final_x])
-        return plataforms
     
-    def set_obstacles(self, y, arr, gen, is_ground=False, obstacles=[] ):     
-        qnt = random.choices([1, 2, 3], weights=[3, 4, 3], k=1)[0]
+    def set_obstacles(self, y, arr, gen, initial_x, final_x, is_ground=False, obstacles=[] ):     
+        qnt = random.choices([2, 3], weights=[1,1], k=1)[0]
         if qnt==0:
             return obstacles
         qnt = math.ceil(qnt/gen)
@@ -152,26 +136,28 @@ class WorldGenerator:
             if is_ground and (random_pos==random_arr[len(random_arr)-1] or random_pos==random_arr[0]):
                 i-=1
                 
-            if not self.check_x(random_pos, obstacles):
+            if not self.check_x(random_pos, obstacles, initial_x, final_x):
                 i-=1
             else:
                 obstacles.append([random_pos, y])
             random_arr.remove(random_pos)
         return obstacles
     
-    def check_x(self, x, arr):
+    def check_x(self, x, arr, initial_x, final_x):
+        if x<initial_x+3 or x>final_x-3:
+            return False
         if arr==[]:
             return True
         for i in arr:
-            if i[0] <= x+2 and i[0] >= x-1:
+            if i[0] <= x+4 and i[0] >= x-4:
                 return False
+                
         return True
     
     def increment_speed(self, elapsed_time):
         if int(elapsed_time)%10==0:
             if self.last_time_speed!= int(elapsed_time):
                 self.last_time_speed = int(elapsed_time)
-                print("dasdas")
                 self.speed+=60
         
             

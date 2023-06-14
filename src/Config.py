@@ -1,4 +1,4 @@
-import pygame
+import pygame, os
 
 window_width = 960
 window_height = 576
@@ -17,3 +17,6 @@ bg_color = (50, 130, 255)
 grid_color = (255, 255, 255)
 tile_width = int(window_width / 15)
 tile_height = int(window_height / 9)
+
+local_dir = os.path.dirname(__file__)
+config_path = os.path.join(local_dir, "config-feedfoward.txt")
